@@ -138,11 +138,11 @@
             function calculatePeriod(startDate) {
                 // Datum A berechnen (Datum 1 - TC Condition)
                 const dateA = new Date(startDate);
-                dateA.setDate(startDate.getDate() - tcCondition);
+                dateA.setDate(dateA.getDate() - tcCondition);
 
                 // Datum B berechnen (Datum A - 2 Tage)
                 const dateB = new Date(dateA);
-                dateB.setDate(dateA.getDate() - 2);
+                dateB.setDate(dateB.getDate() - 2);
 
                 // Datum Z berechnen (Datum B - CC FG Duration)
                 const dateZ = new Date(dateB);
@@ -150,7 +150,7 @@
 
                 // Datum Y berechnen (Startdatum + 1 Tag)
                 const dateY = new Date(startDate);
-                dateY.setDate(startDate.getDate() + 1);
+                dateY.setDate(dateY.getDate() + 1);
 
                 // Datum T berechnen (Datum Y - 30 Tage)
                 const dateT = new Date(dateY);
@@ -172,6 +172,16 @@
                 return `${day}.${month}.${year}`;
             }
 
+            // Hilfsfunktion zur Änderung der Hintergrundfarbe von CC FG Feldern
+            function updateCcFgBackground(ccFgElement, ccFgDate, tcFg) {
+                const tcFgDate = new Date(tcFg);
+                if (ccFgDate <= tcFgDate) {
+                    ccFgElement.style.backgroundColor = "#90ee90"; // Hellgrün
+                } else {
+                    ccFgElement.style.backgroundColor = "#ffa500"; // Orange
+                }
+            }
+
             // Berechnung für Datum 1
             const date1Value = document.getElementById("date1").value;
             if (date1Value) {
@@ -181,6 +191,7 @@
                 const ccFgDate1 = new Date(period.dateZRaw);
                 ccFgDate1.setDate(ccFgDate1.getDate() + ccFgDuration);
                 document.getElementById("ccFg1").value = formatDate(ccFgDate1);
+                updateCcFgBackground(document.getElementById("ccFg1"), ccFgDate1, tcFg);
             }
 
             // Berechnung für Datum 2
@@ -192,6 +203,7 @@
                 const ccFgDate2 = new Date(period.dateZRaw);
                 ccFgDate2.setDate(ccFgDate2.getDate() + ccFgDuration);
                 document.getElementById("ccFg2").value = formatDate(ccFgDate2);
+                updateCcFgBackground(document.getElementById("ccFg2"), ccFgDate2, tcFg);
             }
 
             // Berechnung für Datum 3
@@ -203,9 +215,9 @@
                 const ccFgDate3 = new Date(period.dateZRaw);
                 ccFgDate3.setDate(ccFgDate3.getDate() + ccFgDuration);
                 document.getElementById("ccFg3").value = formatDate(ccFgDate3);
+                updateCcFgBackground(document.getElementById("ccFg3"), ccFgDate3, tcFg);
             }
         }
     </script>
-<p style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: gray;">Alle Angaben ohne Gewähr.</p>
 </body>
 </html>
