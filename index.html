@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VU Rechner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: auto;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            margin-right: 10px;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .input-group input[type="number"], 
+        .input-group input[type="date"],
+        .input-group input[type="text"] {
+            padding: 8px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            width: auto;
+        }
+        .input-group input[type="date"],
+        .input-group input[type="number"],
+        .input-group input[type="text"] {
+            width: 150px;
+        }
+        .input-group input[type="text"]:not([readonly]) {
+            margin-left: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h2>VU Rechner</h2>
+        
+        <div class="input-group">
+            <label for="date1">Datum 1:</label>
+            <input type="date" id="date1">
+            <label for="resultDate1" style="margin-left: 15px;">Zeitraum 1:</label>
+            <input type="text" id="resultDate1" readonly style="width: auto;">
+            <label for="ccFg1" style="margin-left: 15px;">CC FG 1:</label>
+            <input type="text" id="ccFg1" readonly style="width: 150px;">
+        </div>
+
+        <div class="input-group">
+            <label for="date2">Datum 2:</label>
+            <input type="date" id="date2">
+            <label for="resultDate2" style="margin-left: 15px;">Zeitraum 2:</label>
+            <input type="text" id="resultDate2" readonly style="width: auto;">
+            <label for="ccFg2" style="margin-left: 15px;">CC FG 2:</label>
+            <input type="text" id="ccFg2" readonly style="width: 150px;">
+        </div>
+
+        <div class="input-group">
+            <label for="date3">Datum 3:</label>
+            <input type="date" id="date3">
+            <label for="resultDate3" style="margin-left: 15px;">Zeitraum 3:</label>
+            <input type="text" id="resultDate3" readonly style="width: auto;">
+            <label for="ccFg3" style="margin-left: 15px;">CC FG 3:</label>
+            <input type="text" id="ccFg3" readonly style="width: 150px;">
+        </div>
+
+        <div class="input-group">
+            <label for="tcCondition">TC Condition:</label>
+            <input type="number" id="tcCondition" placeholder="z.B. 6">
+        </div>
+
+        <div class="input-group">
+            <label for="tcFg">TC FG:</label>
+            <input type="date" id="tcFg">
+        </div>
+
+        <div class="input-group">
+            <label for="ccFgDuration">CC FG Duration:</label>
+            <input type="number" id="ccFgDuration" placeholder="z.B. 3">
+        </div>
+
+        <button onclick="calculateDates()">Berechne Zeitraum</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateDates() {
+            const tcCondition = parseInt(document.getElementById("tcCondition").value);
+            const tcFg = document.getElementById("tcFg").value;
+            const ccFgDuration = parseInt(document.getElementById("ccFgDuration").value);
+
+            if (isNaN(tcCondition) || !tcFg || isNaN(ccFgDuration)) {
+                document.getElementById("result").innerText = "Bitte füllen Sie alle Felder aus.";
+                return;
+            }
+
+            // Funktion zur Berechnung des Zeitraums für ein gegebenes Datum
+            function calculatePeriod(startDate) {
+                // Datum A berechnen (Datum 1 - TC Condition)
+                const dateA = new Date(startDate);
+                dateA.setDate(startDate.getDate() - tcCondition);
+
+                // Datum B berechnen (Datum A - 2 Tage)
+                const dateB = new Date(dateA);
+                dateB.setDate(dateA.getDate() - 2);
+
+                // Datum Z berechnen (Datum B - CC FG Duration)
+                const dateZ = new Date(dateB);
+                dateZ.setDate(dateB.getDate() - ccFgDuration);
+
+                // Datum Y berechnen (Startdatum + 1 Tag)
+                const dateY = new Date(startDate);
+                dateY.setDate(startDate.getDate() + 1);
+
+                // Datum T berechnen (Datum Y - 30 Tage)
+                const dateT = new Date(dateY);
+                dateT.setDate(dateY.getDate() - 30);
+
+                // Zeitraum von Datum T bis Datum Z im Format TT.MM.JJJJ bis TT.MM.JJJJ
+                return { 
+                    dateT: formatDate(dateT), 
+                    dateZ: formatDate(dateZ), 
+                    dateZRaw: dateZ 
+                };
+            }
+
+            // Funktion zur Formatierung des Datums in TT.MM.JJJJ
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}.${month}.${year}`;
+            }
+
+            // Berechnung für Datum 1
+            const date1Value = document.getElementById("date1").value;
+            if (date1Value) {
+                const date1 = new Date(date1Value);
+                const period = calculatePeriod(date1);
+                document.getElementById("resultDate1").value = `${period.dateT} bis ${period.dateZ}`;
+                const ccFgDate1 = new Date(period.dateZRaw);
+                ccFgDate1.setDate(ccFgDate1.getDate() + ccFgDuration);
+                document.getElementById("ccFg1").value = formatDate(ccFgDate1);
+            }
+
+            // Berechnung für Datum 2
+            const date2Value = document.getElementById("date2").value;
+            if (date2Value) {
+                const date2 = new Date(date2Value);
+                const period = calculatePeriod(date2);
+                document.getElementById("resultDate2").value = `${period.dateT} bis ${period.dateZ}`;
+                const ccFgDate2 = new Date(period.dateZRaw);
+                ccFgDate2.setDate(ccFgDate2.getDate() + ccFgDuration);
+                document.getElementById("ccFg2").value = formatDate(ccFgDate2);
+            }
+
+            // Berechnung für Datum 3
+            const date3Value = document.getElementById("date3").value;
+            if (date3Value) {
+                const date3 = new Date(date3Value);
+                const period = calculatePeriod(date3);
+                document.getElementById("resultDate3").value = `${period.dateT} bis ${period.dateZ}`;
+                const ccFgDate3 = new Date(period.dateZRaw);
+                ccFgDate3.setDate(ccFgDate3.getDate() + ccFgDuration);
+                document.getElementById("ccFg3").value = formatDate(ccFgDate3);
+            }
+        }
+    </script>
+<p style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: gray;">Alle Angaben ohne Gewähr.</p>
+</body>
+</html>
